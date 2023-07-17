@@ -117,6 +117,28 @@ BEGIN
     execute immediate 'create or replace function internal.get_ef_token() returns string as \'\\\'' || token || '\\\'\';';
 END;
 
+create function if not exists internal.ef_registertenant(request object)
+    returns string
+    language javascript
+    as
+    'throw "tenant register requires api gateway to be configured";';
+
+
+CREATE OR REPLACE PROCEDURE admin.setup_register_tenant_func() RETURNS STRING LANGUAGE SQL AS
+BEGIN
+    let url string := 'https://1f7h8ji4pa.execute-api.us-west-2.amazonaws.com/test/';
+    execute immediate '
+        BEGIN
+	        create or replace external function internal.ef_registertenant(request object)
+            returns object
+            context_headers = (CURRENT_ACCOUNT, CURRENT_USER, CURRENT_ROLE, CURRENT_DATABASE, CURRENT_SCHEMA, CURRENT_REGION)
+            api_integration = reference(\'opscenter_api_integration\')
+            headers = ()
+            as \'' || url || '/extfunc/register_tenant\';
+        END;
+    ';
+END;
+
 CREATE OR REPLACE PROCEDURE admin.setup_external_functions() RETURNS STRING LANGUAGE SQL AS
 BEGIN
     let url string := (select internal.get_ef_url());
@@ -143,6 +165,7 @@ BEGIN
             api_integration = reference(\'opscenter_api_integration\')
             headers = (\'sndk-token\' = \'sndk_' || token || '\')
             as \'' || url || '/extfunc/run\';
+
         END;
     ';
 

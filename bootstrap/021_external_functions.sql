@@ -118,15 +118,33 @@ BEGIN
 END;
 
 create function if not exists internal.ef_registertenant(request object)
-    returns string
+    returns object
     language javascript
     as
     'throw "tenant register requires api gateway to be configured";';
 
 
+
+create or replace function internal.wrapper_registertenant(request object)
+    returns object
+    immutable
+as
+$$
+    iff(length(internal.ef_registertenant(request):error) != 0,
+        internal.throw_exception(internal.ef_registertenant(request):error),
+        internal.ef_registertenant(request):result)::object
+$$;
+
+create or replace function tools.registertenant(request object)
+    returns object
+as
+$$
+    internal.wrapper_registertenant(request)
+$$;
+
 CREATE OR REPLACE PROCEDURE admin.setup_register_tenant_func() RETURNS STRING LANGUAGE SQL AS
 BEGIN
-    let url string := 'https://1f7h8ji4pa.execute-api.us-west-2.amazonaws.com/test/';
+    let url string := 'https://1f7h8ji4pa.execute-api.us-west-2.amazonaws.com/test';
     execute immediate '
         BEGIN
 	        create or replace external function internal.ef_registertenant(request object)
@@ -148,21 +166,21 @@ BEGIN
             create or replace external function internal.ef_qlike(request object)
             returns object
             context_headers = (CURRENT_ACCOUNT, CURRENT_USER, CURRENT_ROLE, CURRENT_DATABASE, CURRENT_SCHEMA)
-            api_integration = reference(\'opscenter_api_integration_ad2\')
+            api_integration = reference(\'opscenter_api_integration_ad1\')
             headers = (\'sndk-token\' = \'sndk_' || token || '\')
             as \'' || url || '/extfunc/qlike\';
 
             create or replace external function internal.ef_notifications(request object)
             returns object
             context_headers = (CURRENT_ACCOUNT, CURRENT_USER, CURRENT_ROLE, CURRENT_DATABASE, CURRENT_SCHEMA)
-            api_integration = reference(\'opscenter_api_integration_ad2\')
+            api_integration = reference(\'opscenter_api_integration_ad1\')
             headers = (\'sndk-token\' = \'sndk_' || token || '\')
             as \'' || url || '/extfunc/notifications\';
 
             create or replace external function internal.ef_run(unused object, request object)
             returns object
             context_headers = (CURRENT_ACCOUNT, CURRENT_USER, CURRENT_ROLE, CURRENT_DATABASE, CURRENT_SCHEMA)
-            api_integration = reference(\'opscenter_api_integration_ad2\')
+            api_integration = reference(\'opscenter_api_integration_ad1\')
             headers = (\'sndk-token\' = \'sndk_' || token || '\')
             as \'' || url || '/extfunc/run\';
 

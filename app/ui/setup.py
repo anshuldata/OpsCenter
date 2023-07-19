@@ -59,8 +59,6 @@ def setup_block():
         ).values[0]
     )
 
-
-
     # depending on the type of account the region may be prefixed with "public"
     # see https://docs.snowflake.com/en/sql-reference/functions/current_region
     sf_region_without_public = sf_region.split(".")[-1]
@@ -91,8 +89,6 @@ BEGIN -- Grant OpsCenter Permissions to Monitor Warehouses and Queries
             + f"""USAGE ON WAREHOUSE IDENTIFIER(:n) TO APPLICATION "{db}"; END FOR; END;
     CALL "{db}".ADMIN.FINALIZE_SETUP(); RETURN 'SUCCESS';
 END;
-
-
 """
         )
         st.button("Refresh Status", on_click=config.refresh, key="refresh")
@@ -168,7 +164,7 @@ END;
             token, url = decode_token(token_input)
             connection.Connection.get().call("INTERNAL.SETUP_SUNDECK_TOKEN", url, token)
             req = perms.request_aws_api_integration(
-                "opscenter_api_integration_ad2",
+                "opscenter_api_integration_ad1",
                 (
                     "https://1f7h8ji4pa.execute-api.us-west-2.amazonaws.com", # TODO fix this
                     "https://1lf9af4dk7.execute-api.us-east-1.amazonaws.com",
@@ -181,7 +177,7 @@ END;
                 perms.AwsGateway.API_GATEWAY,
                 "arn:aws:iam::323365108137:role/SnowflakeOpsCenterRole",
                 None,
-                "OPSCENTER_SUNDECK_EXTERNAL_FUNCTIONS",
+                "OPSCENTER_SUNDECK_EXTERNAL_FUNCTIONS_1",
                 None,
             )
             if req is None:

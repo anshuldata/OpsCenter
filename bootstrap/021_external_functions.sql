@@ -132,7 +132,7 @@ as
 $$
     iff(length(internal.ef_registertenant(request):error) != 0,
         internal.throw_exception(internal.ef_registertenant(request):error),
-        internal.ef_registertenant(request):result)::object
+        internal.ef_registertenant(request))::object
 $$;
 
 create or replace function tools.registertenant(request object)

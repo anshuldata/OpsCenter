@@ -16,7 +16,7 @@ privileges:
       description: "For monitoring usage and queries. For cancelling queries based on probe policies."
 
 references:
-  - opscenter_api_integration:
+  - opscenter_api_integration_ad2:
       label: "API Integration"
       description: "Enable email and slack notifications for OpsCenter."
       privileges:

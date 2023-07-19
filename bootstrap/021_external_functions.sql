@@ -132,7 +132,7 @@ BEGIN
 	        create or replace external function internal.ef_registertenant(request object)
             returns object
             context_headers = (CURRENT_ACCOUNT, CURRENT_USER, CURRENT_ROLE, CURRENT_DATABASE, CURRENT_SCHEMA, CURRENT_REGION)
-            api_integration = reference(\'opscenter_api_integration\')
+            api_integration = reference(\'opscenter_api_integration_ad2\')
             headers = ()
             as \'' || url || '/extfunc/register_tenant\';
         END;
@@ -148,21 +148,21 @@ BEGIN
             create or replace external function internal.ef_qlike(request object)
             returns object
             context_headers = (CURRENT_ACCOUNT, CURRENT_USER, CURRENT_ROLE, CURRENT_DATABASE, CURRENT_SCHEMA)
-            api_integration = reference(\'opscenter_api_integration\')
+            api_integration = reference(\'opscenter_api_integration_ad2\')
             headers = (\'sndk-token\' = \'sndk_' || token || '\')
             as \'' || url || '/extfunc/qlike\';
 
             create or replace external function internal.ef_notifications(request object)
             returns object
             context_headers = (CURRENT_ACCOUNT, CURRENT_USER, CURRENT_ROLE, CURRENT_DATABASE, CURRENT_SCHEMA)
-            api_integration = reference(\'opscenter_api_integration\')
+            api_integration = reference(\'opscenter_api_integration_ad2\')
             headers = (\'sndk-token\' = \'sndk_' || token || '\')
             as \'' || url || '/extfunc/notifications\';
 
             create or replace external function internal.ef_run(unused object, request object)
             returns object
             context_headers = (CURRENT_ACCOUNT, CURRENT_USER, CURRENT_ROLE, CURRENT_DATABASE, CURRENT_SCHEMA)
-            api_integration = reference(\'opscenter_api_integration\')
+            api_integration = reference(\'opscenter_api_integration_ad2\')
             headers = (\'sndk-token\' = \'sndk_' || token || '\')
             as \'' || url || '/extfunc/run\';
 

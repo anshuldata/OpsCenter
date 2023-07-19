@@ -59,45 +59,7 @@ def setup_block():
         ).values[0]
     )
 
-    req = perms.request_aws_api_integration(
-        "opscenter_api_integration",
-        (
-            "https://1lf9af4dk7.execute-api.us-east-1.amazonaws.com",
-            "https://mr2gl3hcuk.execute-api.us-east-2.amazonaws.com",
-            "https://1fb567sika.execute-api.us-west-2.amazonaws.com",
-            "https://rkb9hwsqw0.execute-api.us-east-1.amazonaws.com",
-            "https://hh538sr9qg.execute-api.us-west-2.amazonaws.com",
-            "https://w4cu711jd2.execute-api.us-west-2.amazonaws.com",
-        ),
-        perms.AwsGateway.API_GATEWAY,
-        "arn:aws:iam::323365108137:role/SnowflakeOpsCenterRole",
-        None,
-        "OPSCENTER_SUNDECK_EXTERNAL_FUNCTIONS",
-        None,
-    )
-    if req is None:
-        print("Token recorded, creating API integration.")
-        st.code(
-            # To debug
-            """
-            "SUCCESSFULLY got reference of API integration, calling ADMIN.SETUP_REGISTER_TENANT_FUNC()"
-            """
-        )
-        connection.Connection.get().call("ADMIN.SETUP_REGISTER_TENANT_FUNC")
-    else:
-        print("Please run the following command in your Snowflake account:")
-        st.code(
-            """
-BEGIN
-CREATE OR REPLACE API INTEGRATION OPSCENTER_SUNDECK_EXTERNAL_FUNCTIONS api_provider = aws_api_gateway api_aws_role_arn = 'arn:aws:iam::323365108137:role/SnowflakeOpsCenterRole' """
-            + """ api_allowed_prefixes = ('https://1lf9af4dk7.execute-api.us-east-1.amazonaws.com', 'https://mr2gl3hcuk.execute-api.us-east-2.amazonaws.com', """
-            + """'https://1fb567sika.execute-api.us-west-2.amazonaws.com', 'https://rkb9hwsqw0.execute-api.us-east-1.amazonaws.com', """
-            + f"""'https://hh538sr9qg.execute-api.us-west-2.amazonaws.com', 'https://w4cu711jd2.execute-api.us-west-2.amazonaws.com') enabled = true;
-      GRANT USAGE ON INTEGRATION OPSCENTER_SUNDECK_EXTERNAL_FUNCTIONS TO APPLICATION "{db}";
-      CALL ADMIN.SETUP_REGISTER_TENANT_FUNC();
-    END;
-                    """
-        )
+
 
     # depending on the type of account the region may be prefixed with "public"
     # see https://docs.snowflake.com/en/sql-reference/functions/current_region
@@ -136,6 +98,51 @@ END;
         st.button("Refresh Status", on_click=config.refresh, key="refresh")
 
     with expander(
+            1.2, "Create API Integration (optional, via Sundeck)", config.has_sundeck()
+    ):
+        if st.button("Create API Integration", key="create_api_integration"):
+            req = perms.request_aws_api_integration(
+                "opscenter_api_integration_ad2",
+                (
+                    "https://1f7h8ji4pa.execute-api.us-west-2.amazonaws.com", # TODO fix this
+                    "https://1lf9af4dk7.execute-api.us-east-1.amazonaws.com",
+                    "https://mr2gl3hcuk.execute-api.us-east-2.amazonaws.com",
+                    "https://1fb567sika.execute-api.us-west-2.amazonaws.com",
+                    "https://rkb9hwsqw0.execute-api.us-east-1.amazonaws.com",
+                    "https://hh538sr9qg.execute-api.us-west-2.amazonaws.com",
+                    "https://w4cu711jd2.execute-api.us-west-2.amazonaws.com",
+                ),
+                perms.AwsGateway.API_GATEWAY,
+                "arn:aws:iam::323365108137:role/SnowflakeOpsCenterRole",
+                None,
+                "OPSCENTER_SUNDECK_EXTERNAL_FUNCTIONS",
+                None,
+            )
+            if req is None:
+                print("Token recorded, creating API integration.")
+                st.code(
+                    # To debug
+                    """
+                    "SUCCESSFULLY got reference of API integration, calling ADMIN.SETUP_REGISTER_TENANT_FUNC()"
+                    """
+                )
+                connection.Connection.get().call("ADMIN.SETUP_REGISTER_TENANT_FUNC")
+            else:
+                print("Please run the following command in your Snowflake account:")
+                st.code(
+                    """
+    BEGIN
+    CREATE OR REPLACE API INTEGRATION OPSCENTER_SUNDECK_EXTERNAL_FUNCTIONS api_provider = aws_api_gateway api_aws_role_arn = 'arn:aws:iam::323365108137:role/SnowflakeOpsCenterRole' """
+                    + """ api_allowed_prefixes = ('https://1lf9af4dk7.execute-api.us-east-1.amazonaws.com', 'https://mr2gl3hcuk.execute-api.us-east-2.amazonaws.com', """
+                    + """'https://1fb567sika.execute-api.us-west-2.amazonaws.com', 'https://rkb9hwsqw0.execute-api.us-east-1.amazonaws.com', """
+                    + f"""'https://hh538sr9qg.execute-api.us-west-2.amazonaws.com', 'https://w4cu711jd2.execute-api.us-west-2.amazonaws.com') enabled = true;
+          GRANT USAGE ON INTEGRATION OPSCENTER_SUNDECK_EXTERNAL_FUNCTIONS TO APPLICATION "{db}";
+          CALL ADMIN.SETUP_REGISTER_TENANT_FUNC();
+        END;
+                        """
+                )
+
+    with expander(
         2, "Enable Notifications (optional, via Sundeck)", config.has_sundeck()
     ):
         st.markdown(
@@ -161,8 +168,9 @@ END;
             token, url = decode_token(token_input)
             connection.Connection.get().call("INTERNAL.SETUP_SUNDECK_TOKEN", url, token)
             req = perms.request_aws_api_integration(
-                "opscenter_api_integration",
+                "opscenter_api_integration_ad2",
                 (
+                    "https://1f7h8ji4pa.execute-api.us-west-2.amazonaws.com", # TODO fix this
                     "https://1lf9af4dk7.execute-api.us-east-1.amazonaws.com",
                     "https://mr2gl3hcuk.execute-api.us-east-2.amazonaws.com",
                     "https://1fb567sika.execute-api.us-west-2.amazonaws.com",

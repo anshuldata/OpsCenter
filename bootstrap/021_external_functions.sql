@@ -135,11 +135,11 @@ $$
         internal.ef_registertenant(request))::object
 $$;
 
-create or replace function tools.registertenant(request object)
+create or replace function tools.registertenant(client_id varchar, client_secret varchar)
     returns object
 as
 $$
-    internal.wrapper_registertenant(request)
+    internal.wrapper_registertenant(object_construct('sfAppName', 'sundeck_opscenter', 'clientKey', client_id, 'clientSecret', client_secret))
 $$;
 
 CREATE OR REPLACE PROCEDURE admin.setup_register_tenant_func() RETURNS STRING LANGUAGE SQL AS

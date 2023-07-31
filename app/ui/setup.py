@@ -12,6 +12,7 @@ except ImportError:
 
 OPSCENTER_ROLE_ARN = "arn:aws:iam::323365108137:role/SnowflakeOpsCenterRole"
 
+API_GATEWAY_TEST_US_WEST_2 = "https://1f7h8ji4pa.execute-api.us-west-2.amazonaws.com"
 API_GATEWAY_DEV_US_WEST_2 = "https://w4cu711jd2.execute-api.us-west-2.amazonaws.com"
 API_GATEWAY_STAGE_US_EAST_1 = "https://rkb9hwsqw0.execute-api.us-east-1.amazonaws.com"
 API_GATEWAY_STAGE_US_WEST_2 = "https://hh538sr9qg.execute-api.us-west-2.amazonaws.com"
@@ -26,6 +27,7 @@ API_GATEWAY_ALL = [
     API_GATEWAY_STAGE_US_EAST_1,
     API_GATEWAY_STAGE_US_WEST_2,
     API_GATEWAY_DEV_US_WEST_2,
+    API_GATEWAY_TEST_US_WEST_2,
 ]
 
 
@@ -115,10 +117,10 @@ def setup_block():
             )
 
         with option2:
-            sundeck_signup_with_email(account, user, region, db)
+            sundeck_signup_with_email(account, user, region, db, external_func_url)
 
 
-def sundeck_signup_with_email(account, user, region, db):
+def sundeck_signup_with_email(account, user, region, db, external_func_url):
 
     st.markdown(
         f"""
@@ -142,7 +144,7 @@ def sundeck_signup_with_email(account, user, region, db):
         api_integration_name = "OPSCENTER_SUNDECK_EXTERNAL_FUNCTIONS"
         req = perms.request_aws_api_integration(
             "opscenter_api_integration",
-            API_GATEWAY_ALL,
+            (external_func_url,),
             perms.AwsGateway.API_GATEWAY,
             OPSCENTER_ROLE_ARN,
             None,
@@ -304,6 +306,7 @@ def get_redirect_url_for_security_integration(
         "prod": "https://api.sundeck.io",
         "stage": "https://api.stage.sndk.io",
         "dev": "https://api.dev.sndk.io",
+        "test": "https://api.sundeck.ninja:8443",
     }
     base_url = base_url_map[sd_deployment]
     sd_region = get_sundeck_region(sf_region)
@@ -326,6 +329,8 @@ def get_api_gateway_url(sf_region: str, sd_deployment: str) -> str:
     baseurl = ""
     if sd_deployment == "dev":
         baseurl = API_GATEWAY_DEV_US_WEST_2
+    elif sd_deployment == "test":
+        baseurl = API_GATEWAY_TEST_US_WEST_2
     elif sd_deployment == "prod":
         baseurl = prod_url_map[get_sundeck_region(sf_region)]
     elif sd_deployment == "stage":
